@@ -7,7 +7,7 @@
         boxContent : "<!-- Mboxy-content -->"
     };
 
-    mBoxy.framework = function() {
+    mBoxy.framework = function(hasTitle) {
         var obj = document.createElement("table");
 
         obj.style.display = "none";
@@ -18,10 +18,11 @@
         obj.innerHTML = [
             '<tbody class="Mboxy">',
             '<tr><td class="Mboxy-top-left"></td><td class="Mboxy-top"></td><td class="Mboxy-top-right"></td></tr>',
-            '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + '</span><div class="close">关闭</div></div><div class="Mboxy-content">' + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
+            '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><!--title--><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + '</span><div class="close">关闭</div></div><!--/title--><div class="Mboxy-content">' + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
             '<tr><td class="Mboxy-bottom-left"></td><td class="Mboxy-bottom"></td><td class="Mboxy-bottom-right"></td></tr>',
             '</tbody>'
         ].join("");
+        if(!hasTitle) obj.innerHTML = obj.innerHTML.replace(/<!--title-->.*<!--\/title-->/,"");
         return obj;
     }
 
@@ -29,8 +30,8 @@
         var box, boxsSize = mBoxy.Box.getBoxSize(), options = options || {};
 
         options.name = options.name || "mBoxy-" + boxsSize;
-        options.hasTitle = options.hasTitle || true;
-        options.hasBackground = options.hasBackground || true;
+        if(options.hasTitle === false) options.hasTitle = false; else options.hasTitle = true;
+        if(options.hasBackground === false) options.hasBackground = false; else options.hasBackground = true;
 
         box = mBoxy.Box.getBox(options.name);
         if(box) return box;
@@ -49,7 +50,7 @@
         };
 
     Box = mBoxy.Box = function(options) {
-        var boxObject = mBoxy.framework();
+        var boxObject = mBoxy.framework(options.hasTitle);
 
         this.getName = function () {
             return options.name;
