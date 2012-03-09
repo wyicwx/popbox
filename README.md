@@ -1,9 +1,9 @@
 #弹出框
 简单弹出框
 ###用法
-    var box = mBoxy.new();
+    var box = mBoxy.newBox();
 
-    var box = mBoxy.new({
+    var box = mBoxy.newBox({
         name : "box-0",
     	hasTitle : true,
     	hasBackground : true

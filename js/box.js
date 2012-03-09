@@ -3,30 +3,31 @@
     var mBoxy = {};
 
     mBoxy.regExp = {
-        boxTitle : "<!-- Mboxy-title -->/",
+        boxTitle : "<!-- Mboxy-title -->",
         boxContent : "<!-- Mboxy-content -->"
     };
 
-    mBoxy.framework = function(hasTitle) {
-        var obj = document.createElement("table");
+    mBoxy.framework = function(options) {
+        var obj = document.createElement("div");
 
+        obj.id = options.name;
         obj.style.display = "none";
         obj.style.opacity = "0";
         obj.style.filter = "alpha(opacity=0)";
         obj.style.zIndex = 9999;
         obj.style.position = "absolute"
         obj.innerHTML = [
-            '<tbody class="Mboxy">',
+            '<table><tbody class="Mboxy">',
             '<tr><td class="Mboxy-top-left"></td><td class="Mboxy-top"></td><td class="Mboxy-top-right"></td></tr>',
             '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><!--title--><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + '</span><div class="close">关闭</div></div><!--/title--><div class="Mboxy-content">' + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
             '<tr><td class="Mboxy-bottom-left"></td><td class="Mboxy-bottom"></td><td class="Mboxy-bottom-right"></td></tr>',
-            '</tbody>'
+            '</tbody></table>'
         ].join("");
-        if(!hasTitle) obj.innerHTML = obj.innerHTML.replace(/<!--title-->.*<!--\/title-->/,"");
+        if(!options.hasTitle) obj.innerHTML = obj.innerHTML.replace(/<!--title-->.*<!--\/title-->/,"");
         return obj;
     }
 
-    mBoxy.new = function(options) {
+    mBoxy.newBox = function(options) {
         var box, boxsSize = mBoxy.Box.getBoxSize(), options = options || {};
 
         options.name = options.name || "mBoxy-" + boxsSize;
@@ -50,7 +51,7 @@
         };
 
     Box = mBoxy.Box = function(options) {
-        var boxObject = mBoxy.framework(options.hasTitle);
+        var boxObject = mBoxy.framework(options);
 
         this.getName = function () {
             return options.name;
@@ -134,7 +135,7 @@
             }
             this["_opacity"] = false;
         } else {
-            this.getBoxObject().style.display = "table";
+            this.getBoxObject().style.display = "block";
             this.getBoxObject().style.opacity="1";
             this.getBoxObject().style.filter="alpha(opacity=100)";
             if(this.hasBackground()) {
@@ -169,6 +170,7 @@
     events["title"] = function(title) {
         var innerHTML = this.getBoxObject().innerHTML, titleRegExp = this["__title"] || mBoxy.regExp["boxTitle"];
 
+        if(!this.hasTitle) return this;
         innerHTML = innerHTML.replace(titleRegExp,title);
         this.getBoxObject().innerHTML = innerHTML;
         this["__title"] = title;
@@ -229,7 +231,7 @@
         }
 
         this.trigger("insert","position");
-        obj.style.display = "table";
+        obj.style.display = "block";
         bg.style.display = "block";
         this.trigger("insert");
         run();
@@ -262,7 +264,7 @@
             if(t < d) {t++; setTimeout(run,10)}
         }
 
-        obj.style.display = "table";
+        obj.style.display = "block";
         bg.style.display = "block";
         this.trigger("insert");
         run();
@@ -287,7 +289,7 @@
             obj = this.getBoxObject(),
             display = obj.style.display;
 
-            obj.style.display = "table";
+            obj.style.display = "block";
             objHeight = obj.clientHeight;
             objWidth = obj.clientWidth;
             obj.style.display = display;

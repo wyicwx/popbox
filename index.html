@@ -10,10 +10,9 @@
 
 	</body>
 	<script type="text/javascript">
-			var xx = mBoxy.new({hasTitle:false});
-			var yy = mBoxy.new();
+			var xx = mBoxy.newBox({hasTitle:false}).title("test").html("content");
+			var yy = mBoxy.newBox().title("test").html("content2");
 
-			xx.title("test").html("<div>content</div>");
 			setTimeout(function() {xx.show()},1000);
 
 			setTimeout(function() {xx.hide()},2000);
