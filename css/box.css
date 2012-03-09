@@ -1,0 +1,98 @@
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+td, th {
+	display: table-cell;
+	vertical-align: inherit;
+	padding: 0;
+	margin: 0;
+}
+.Mboxy {}
+.Mboxy-top, .Mboxy-left, .Mboxy-bottom, .Mboxy-right {
+	background: black;
+	opacity: 0.3;
+	filter: alpha(opacity=40);
+}
+.Mboxy-top-left{
+	background: url('../images/boxy-nw.png') no-repeat;
+	_background: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='./images/boxy-nw.png', sizingMethod='crop');
+}
+.Mboxy-top {
+	height: 6px;
+}
+.Mboxy-top-right {
+	background: url('../images/boxy-ne.png') no-repeat;
+	_background: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='./images/boxy-ne.png', sizingMethod='crop');
+}
+.Mboxy-left {
+	width: 6px;
+}
+.Mboxy-inner {
+	background-color: white;
+	padding: 0;
+	zoom: 1;
+	display: block;
+}
+.Mboxy-right {
+	width: 6px;
+}
+.Mboxy-bottom-left {
+	background: url('../images/boxy-sw.png') no-repeat;
+	_background: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='./images/boxy-sw.png', sizingMethod='crop');
+}
+.Mboxy-bottom {
+	height: 6px;
+}
+.Mboxy-bottom-right {
+	background: url('../images/boxy-se.png') no-repeat;
+	_background: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='./images/boxy-se.png', sizingMethod='crop');
+}
+.Mboxy-title {
+	margin: -1px 0px 0px 0px;
+	text-indent: 1em; 
+	width: 100%;
+	padding: 6px 0px;
+	position: relative;
+	text-align: left;
+	vertical-align: top;
+	border: none;
+	background:#F8F8F8 url(../images/TopDivBg.jpg) repeat-x 0px 0px;
+}
+.Mboxy-title span {
+	color: white;
+}
+.Mboxy-title .close {
+	height: 15px;
+	width: 15px;
+	border: 0px;
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	font-size: 90%;
+	line-height: 9999em;
+	overflow: hidden;
+	color: white;
+	cursor: pointer;
+	background: url(../images/close.gif) no-repeat center;
+}
+.Mboxy-content {
+	background-color: #F8F8F8;
+	border: #666 solid 1px;
+	padding: 10px;
+}
+.Mboxy-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: black;
+	opacity: 0;
+	filter: alpha(opacity=0);
+	z-index: 999;
+}
