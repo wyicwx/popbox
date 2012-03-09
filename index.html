@@ -11,6 +11,7 @@
 	</body>
 	<script type="text/javascript">
 			var xx = mBoxy.new({hasTitle:false});
+			var yy = mBoxy.new();
 
 			xx.title("test").html("<div>content</div>");
 			setTimeout(function() {xx.show()},1000);
@@ -20,6 +21,17 @@
 			setTimeout(function() {xx.popup()},3000);
 
 			setTimeout(function() {xx.popdown()},4000);
+
+
+			setTimeout(function() {yy.show()},5000);
+
+			setTimeout(function() {yy.hide()},6000);
+
+			setTimeout(function() {yy.popup()},7000);
+
+			setTimeout(function() {yy.popdown()},8000);
+
+
 		</script>
 </html>
 
