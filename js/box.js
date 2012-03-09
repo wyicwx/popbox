@@ -3,8 +3,8 @@
     var mBoxy = {};
 
     mBoxy.regExp = {
-        boxTitle : "/*Mboxy-title*/",
-        boxContent : "/*Mboxy-content*/"
+        boxTitle : "<!-- Mboxy-title -->/",
+        boxContent : "<!-- Mboxy-content -->"
     };
 
     mBoxy.framework = function() {
@@ -147,16 +147,6 @@
         return this;
     }
 
-    events["content"] = function(content) {
-        var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__content"] || mBoxy.regExp["boxContent"];
-
-        if(!content) return this;
-        innerHTML = innerHTML.replace(contentRegExp,content);
-        this.getBoxObject().innerHTML = innerHTML;
-        this["__content"] = content;
-        return this;
-    };
-
     events["trigger"] = function() {
         var i, max;
         for(i = 0, max = arguments.length;i < max ;i++) {
@@ -184,12 +174,21 @@
         return this;
     };
 
-    events["content"] = function(content) {
-        var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__content"] || mBoxy.regExp["boxContent"];
+    events["html"] = function(html) {
+        var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__html"] || mBoxy.regExp["boxContent"];
 
-        innerHTML = innerHTML.replace(contentRegExp,content);
+        innerHTML = innerHTML.replace(contentRegExp,html);
         this.getBoxObject().innerHTML = innerHTML;
-        this["__content"] = content;
+        this["__html"] = html;
+        return this;
+    };
+
+    events["text"] = function(text) {
+        var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__text"] || mBoxy.regExp["boxContent"];
+
+        innerHTML = innerHTML.replace(contentRegExp,text);
+        this.getBoxObject().innerHTML = innerHTML;
+        this["__content"] = text;
         return this;
     };
 
@@ -228,15 +227,15 @@
             if(t < d) {t++; setTimeout(run,10)}
         }
 
-        this.position();
+        this.trigger("insert","position");
         obj.style.display = "table";
-        bg.style.display = "block";        
+        bg.style.display = "block";
         this.trigger("insert");
         run();
     }
 
     events["popdown"] = function() {
-        var t = 0, b = 100, c = -100, d = 50,
+        var t = 0, b = 100, c = -100, d = 50, that = this,
             obj = this.getBoxObject(),
             bg = mBoxy.Box.getBackgroundObject(),
             hasBackground = this.hasBackground();
@@ -263,9 +262,10 @@
         }
 
         obj.style.display = "table";
-        bg.style.display = "block";        
+        bg.style.display = "block";
         this.trigger("insert");
         run();
+        setTimeout(function() {that.hide()},10*(d+1));
     }
 
     events["remove"] = function() {
@@ -279,12 +279,17 @@
         if(x && y) {
             obj.style.left = parseInt(x,10) + "px";
             obj.style.top = parseInt(y,10) + "px";
+            return;
         }
         var winWidth = document.documentElement.clientWidth,
             winHeight = document.documentElement.clientHeight,
             obj = this.getBoxObject(),
-            objHeight = obj.clientHeight,
+            display = obj.style.display;
+
+            obj.style.display = "table";
+            objHeight = obj.clientHeight;
             objWidth = obj.clientWidth;
+            obj.style.display = display;
 
         obj.style.left = Math.ceil((winWidth - objWidth)/2) + "px";
         obj.style.top = Math.ceil((winHeight - objHeight)/2) + "px";
