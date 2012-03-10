@@ -184,7 +184,7 @@
         var that = this;
 
         this.trigger("insert","position","toggle");
-        if(timeout instanceof Number) {
+        if(timeout > 0) {
             clearTimeout(that["_timeout"]);
             that["_timeout"] = setTimeout(function() {that.hide()},timeout);
         }
@@ -264,7 +264,7 @@
             }
             if(t < d) {t++; setTimeout(run,10)} else {
 
-                if(timeout instanceof Number) {
+                if(timeout > 0) {
                     clearTimeout(that["_timeout"]);
                     that["timeout"] = setTimeout(function() {
                         that.popdown();
