@@ -32,7 +32,7 @@
 触发对象事件函数，可以传入多个参数
 
 `box.show`
-对象显示
+对象显示,传入参数time指定事件触发hide事件
 
 `box.hide`
 对象隐藏
@@ -47,7 +47,7 @@
 将对象插入DOM
 
 `box.popup`
-对象淡入
+对象淡入,传入参数time指定事件触发popdown事件
 
 `box.popdown`
 对象淡出
