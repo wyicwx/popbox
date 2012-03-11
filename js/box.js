@@ -2,11 +2,13 @@
 
     var mBoxy = {};
 
+    //标题和内容标识符
     mBoxy.regExp = {
         boxTitle : "<!-- Mboxy-title -->",
         boxContent : "<!-- Mboxy-content -->"
     };
 
+    //弹出框主题框架
     mBoxy.framework = function(options) {
         var obj = document.createElement("div");
 
@@ -22,11 +24,12 @@
             '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><!--title--><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + '</span><div id="j-close" class="close">关闭</div></div><!--/title--><div class="Mboxy-content">' + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
             '<tr><td class="Mboxy-bottom-left"></td><td class="Mboxy-bottom"></td><td class="Mboxy-bottom-right"></td></tr>',
             '</tbody></table>'
-        ].join("");
+        ].join("");//使用join提升性能
         if(!options.hasTitle) obj.innerHTML = obj.innerHTML.replace(/<!--title-->.*<!--\/title-->/,"");
         return obj;
     }
 
+    //生成新窗口函数，主函数
     mBoxy.newBox = function(options) {
         var box, boxsSize = mBoxy.Box.getBoxSize(), options = options || {};
 
@@ -37,17 +40,19 @@
         box = mBoxy.Box.getBox(options.name);
         if(box) return box;
         box = new mBoxy.Box(options);
-        box.event = new mBoxy.Event(box);
+        box.event = new mBoxy.Box.Event(box);
         if(options.hasTitle) {
             box.bind("click","#j-close",function(event,obj) { obj.popdown()})
         }
         return box;
     }
 
+    //弹出框事件系统（抽象类）
     mBoxy.Event = function() {
         throw "abstract function";
     }
 
+    //弹出框类（抽象类）
     mBoxy.Box = function() {
         throw "abstract function";
     }
@@ -56,133 +61,13 @@
 
 })()
 
-;(function(mBoxy) {
-    var Event,
-        eventOP;
-
-    Event = mBoxy.Event = function(obj) {
-        // obj.events = {
-        //     "click":{
-        //       "#mBoxy":[function() {},function() {}]
-        //      }
-        // }
-        this.box = obj;
-        this.events = {};
-    }
-
-    eventOP = Event.prototype;
-
-    eventOP["_createEvent"] = function(obj,identity,handler) {
-        obj[identity] = new Array();
-        if(handler) obj[identity].push(handler);
-        return obj;
-    }
-
-    eventOP["registerType"] = function(name,identity,handler) {
-        if(this.events[name]) return this;
-        this.events[name] = {};
-
-        if(identity) {
-            this._createEvent(this.events[name],identity,handler);
-        }
-
-        this._addListener(name);
-    }
-
-    eventOP["registerListener"] = function(name,identity,handler) {
-        var eventList = this.events[name],hasIdentity = false,
-            i;
-
-        if(!eventList) {
-            this.registerType(name,identity,handler);
-            return this;
-        }
-
-        for(i in eventList) {
-            if(i == identity) {
-                eventList[i].push(handler);
-                hasIdentity = true;
-                break;
-            }
-        }
-
-        if(!hasIdentity) {
-            this._createEvent(eventList,identity,handler);
-        }
-    }
-
-    eventOP["unregisterListener"] = function(name,identity,handler) {
-        var eventList = this.events[name],i;
-
-        if(!eventsList) return this;
-
-        if(!eventsList[identity]) return this;
-
-        for(i in eventsList[identity]) {
-            if(eventsList[identity][i] == handler) eventsList[identity].split(i,1);
-        }
-        return this;
-    }
-
-    eventOP["_addListener"] = function(type) {
-        var obj = this.box.getBoxObject(),
-            callback = this._callback(type);
-
-        if(window.addEventListener) {
-            obj.addEventListener(type,callback,false); 
-        } else if (window.attachEvent) {
-            obj['__' + type + callback] = callback;
-            obj[type + callback] = function() {
-                obj['__' + type + callback](window.event);
-            }
-            obj.attachEvent("on" + type, obj[type + callback]);
-        }
-    }
-
-    eventOP["_callback"] = function(type) {
-        var eventList = this.events[type], type = type ,obj = this.box;
-
-        function compare(type,id,classes) {
-            var i, identity, ident, j;
-
-            for(i in eventList) {
-                identity = i.slice(0,1);
-                ident = i.slice(1,i.length);
-                switch(identity) {
-                    case "#": 
-                        if(id == ident) return i;
-                        break;
-                    case ".":
-                        for(j in classes) {
-                            if(classes[j] == ident) return i;
-                        }
-                        break;
-                }
-            }
-            return false;
-        }
-
-        return function(e) {
-            var eventTag = e.target || e.srcElement,
-                tagId = eventTag.id,
-                tagClass = eventTag.className.split(" "),
-                result,i;
-
-            result = compare(type,tagId,tagClass);
-            if(result) {
-                for(i in eventList[result]) eventList[result][i](e,obj);
-            }
-        }
-    }
-
-})(window.mBoxy)
-
  ;(function(mBoxy) {
     var Box,
         _boxs = {
             _length : 0
         };
 
+    //弹出框类
     Box = mBoxy.Box = function(options) {
         var boxObject = mBoxy.framework(options);
 
@@ -194,7 +79,7 @@
             return boxObject;
         };
 
-        this.hasTitle = function() {
+        this.hasTitle = function() {//一个弹出框是否带有标题，在生成窗口后不可修改
             return options.hasTitle;
         }
 
@@ -211,6 +96,7 @@
         _boxs._length += 1;
     }
 
+    //弹出框背景
     Box.getBackgroundObject = function() {
         var obj = document.createElement("div");
 
@@ -222,15 +108,18 @@
         return obj;
     }
     
+    //获取弹出窗对象
     Box.getBox = function(name) {
         if(!name) return _boxs;
         return _boxs[name];
     }
 
+    //获取弹出框数量
     Box.getBoxSize = function() {
         return _boxs["_length"];
     }
 
+    //销毁一个窗口对象，参数可以是窗口名或者窗口对象
     Box.destroy = function(option) {
         var boxObj;
 
@@ -252,6 +141,7 @@
 })(window.mBoxy)
 
 ;(function(mBoxy) {
+    //mBoxy.Box.events 弹出窗原型函数
     var events = mBoxy.Box.events, Box = mBoxy.Box;
 
     events["toggle"] = function(option) {
@@ -290,8 +180,14 @@
         return this;
     };
 
-    events["show"] = function() {
+    events["show"] = function(timeout) {
+        var that = this;
+
         this.trigger("insert","position","toggle");
+        if(timeout) {
+            clearTimeout(that["_timeout"]);
+            that["_timeout"] = setTimeout(function() {that.hide()},timeout);
+        }
         return this;
     };
 
@@ -336,11 +232,12 @@
         return this;
     };
 
-    events["popup"] = function() {
+    events["popup"] = function(timeout) {
         var t = 0, b = 0, c = 100, d = 50,
             obj = this.getBoxObject(), 
             bg = mBoxy.Box.getBackgroundObject(),
-            hasBackground = this.hasBackground();;
+            hasBackground = this.hasBackground(),
+            that = this;
 
         function SinusoidalEaseIn (t,b,c,d){
             return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
@@ -360,7 +257,12 @@
                 bg.style.opacity = 3*bgstep/1000;
                 bg.style.filter = "alpha(opacity="+ 3*bgstep/10 +")";
             }
-            if(t < d) {t++; setTimeout(run,10)}
+            if(t < d) {t++; setTimeout(run,10)} else {
+                if(timeout) {
+                    clearTimeout(that["_timeout"]);
+                    that["timeout"] = setTimeout(function() {that.popdown()},timeout);
+                }
+            }
         }
 
         this.trigger("insert","position");
@@ -446,3 +348,129 @@
 })(window.mBoxy)
 
 
+;(function(mBoxy) {
+    var Event,
+        eventOP;
+
+    //事件系统
+    Event = mBoxy.Box.Event = function(obj) {
+        // obj.events = {
+        //     "click":{
+        //       "#mBoxy":[function() {},function() {}]
+        //      }
+        // }
+        this.box = obj;
+        this.events = {};
+    }
+
+    eventOP = Event.prototype;
+
+    eventOP["_createEvent"] = function(obj,identity,handler) {
+        obj[identity] = new Array();
+        if(handler) obj[identity].push(handler);
+        return obj;
+    }
+
+    //注册事件类型
+    eventOP["registerType"] = function(name,identity,handler) {
+        if(this.events[name]) return this;  //防止重复事件类型，覆盖注册
+        this.events[name] = {};
+
+        if(identity) {
+            this._createEvent(this.events[name],identity,handler);
+        }
+
+        this._addListener(name);
+    }
+
+    //添加监听者
+    eventOP["registerListener"] = function(name,identity,handler) {
+        var eventList = this.events[name],hasIdentity = false,  //标识监听者是否存在
+            i;
+
+        if(!eventList) {
+            this.registerType(name,identity,handler);
+            return this;
+        }
+
+        for(i in eventList) {
+            if(i == identity) {
+                eventList[i].push(handler);
+                hasIdentity = true;
+                break;
+            }
+        }
+
+        if(!hasIdentity) {
+            this._createEvent(eventList,identity,handler);
+        }
+    }
+
+    //删除监听者
+    eventOP["unregisterListener"] = function(name,identity,handler) {
+        var eventList = this.events[name],i;
+
+        if(!eventsList) return this;
+
+        if(!eventsList[identity]) return this;
+
+        for(i in eventsList[identity]) {
+            if(eventsList[identity][i] == handler) eventsList[identity].split(i,1);
+        }
+        return this;
+    }
+
+    //处理了兼容性的事件绑定函数
+    eventOP["_addListener"] = function(type) {
+        var obj = this.box.getBoxObject(),
+            callback = this._callback(type);
+
+        if(window.addEventListener) {
+            obj.addEventListener(type,callback,false); 
+        } else if (window.attachEvent) {
+            obj['__' + type + callback] = callback;
+            obj[type + callback] = function() {
+                obj['__' + type + callback](window.event);
+            }
+            obj.attachEvent("on" + type, obj[type + callback]);
+        }
+    }
+
+    //封装不同监听者的callback函数
+    eventOP["_callback"] = function(type) {
+        var eventList = this.events[type], type = type ,obj = this.box;
+
+        function compare(type,id,classes) {
+            var i, identity, ident, j;
+
+            for(i in eventList) {
+                identity = i.slice(0,1);
+                ident = i.slice(1,i.length);
+                switch(identity) {
+                    case "#": 
+                        if(id == ident) return i;
+                        break;
+                    case ".":
+                        for(j in classes) {
+                            if(classes[j] == ident) return i;
+                        }
+                        break;
+                }
+            }
+            return false;
+        }
+
+        return function(e) {
+            var eventTag = e.target || e.srcElement,
+                tagId = eventTag.id,
+                tagClass = eventTag.className.split(" "),
+                result,i;
+
+            result = compare(type,tagId,tagClass);
+            if(result) {
+                for(i in eventList[result]) eventList[result][i](e,obj);
+            }
+        }
+    }
+
+})(window.mBoxy)
