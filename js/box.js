@@ -47,11 +47,6 @@
         return box;
     }
 
-    //弹出框事件系统（抽象类）
-    mBoxy.Event = function() {
-        throw "abstract function";
-    }
-
     //弹出框类（抽象类）
     mBoxy.Box = function() {
         throw "abstract function";
@@ -61,7 +56,7 @@
 
 })()
 
- ;(function(mBoxy) {
+;(function(mBoxy) {
     var Box,
         _boxs = {
             _length : 0
@@ -136,6 +131,11 @@
         return true;
     }
 
+    //事件系统（抽象类）
+    Box.Event = function() {
+        throw "abstract function";
+    }
+
     Box.prototype = Box.events = {};
 
 })(window.mBoxy)
@@ -168,7 +168,7 @@
             }
             this["_opacity"] = true;
         }
-
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     }
 
@@ -184,7 +184,7 @@
         var that = this;
 
         this.trigger("insert","position","toggle");
-        if(timeout) {
+        if(timeout instanceof Number) {
             clearTimeout(that["_timeout"]);
             that["_timeout"] = setTimeout(function() {that.hide()},timeout);
         }
@@ -193,6 +193,7 @@
 
     events["hide"] = function() {
         this["toggle"](false);
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     };
 
@@ -203,6 +204,7 @@
         innerHTML = innerHTML.replace(titleRegExp,title);
         this.getBoxObject().innerHTML = innerHTML;
         this["__title"] = title;
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     };
 
@@ -212,6 +214,7 @@
         innerHTML = innerHTML.replace(contentRegExp,html);
         this.getBoxObject().innerHTML = innerHTML;
         this["__html"] = html;
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     };
 
@@ -221,6 +224,7 @@
         innerHTML = innerHTML.replace(contentRegExp,text);
         this.getBoxObject().innerHTML = innerHTML;
         this["__content"] = text;
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     };
 
@@ -229,6 +233,7 @@
         document.body.appendChild(this.getBoxObject());
         document.body.appendChild(mBoxy.Box.getBackgroundObject());
         this["_insert"] = true;
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     };
 
@@ -237,7 +242,7 @@
             obj = this.getBoxObject(), 
             bg = mBoxy.Box.getBackgroundObject(),
             hasBackground = this.hasBackground(),
-            that = this;
+            that = this,ar = arguments;
 
         function SinusoidalEaseIn (t,b,c,d){
             return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
@@ -258,9 +263,15 @@
                 bg.style.filter = "alpha(opacity="+ 3*bgstep/10 +")";
             }
             if(t < d) {t++; setTimeout(run,10)} else {
-                if(timeout) {
+
+                if(timeout instanceof Number) {
                     clearTimeout(that["_timeout"]);
-                    that["timeout"] = setTimeout(function() {that.popdown()},timeout);
+                    that["timeout"] = setTimeout(function() {
+                        that.popdown();
+                        if(ar[ar.length - 1] instanceof Function) ar[ar.length - 1](that);
+                    },timeout);
+                } else {
+                    if(ar[ar.length - 1] instanceof Function) ar[ar.length - 1](that);
                 }
             }
         }
@@ -276,7 +287,8 @@
         var t = 0, b = 100, c = -100, d = 50, that = this,
             obj = this.getBoxObject(),
             bg = mBoxy.Box.getBackgroundObject(),
-            hasBackground = this.hasBackground();
+            hasBackground = this.hasBackground(),
+            ar = arguments, that = this;
 
         function SinusoidalEaseOut (t,b,c,d){
             return c * Math.sin(t/d * (Math.PI/2)) + b;
@@ -296,14 +308,18 @@
                 bg.style.opacity = 3*bgstep/1000;
                 bg.style.filter = "alpha(opacity="+ 3*bgstep/10 +")";
             }
-            if(t < d) {t++; setTimeout(run,10)}
+            if(t < d) {
+                t++; setTimeout(run,10)
+            } else {
+                that.hide();
+                if(ar[ar.length - 1] instanceof Function) ar[ar.length - 1](that);
+            }
         }
 
         obj.style.display = "block";
         bg.style.display = "block";
         this.trigger("insert");
         run();
-        setTimeout(function() {that.hide()},10*(d+1));
     }
 
     events["remove"] = function() {
@@ -311,6 +327,7 @@
         if(this["_insert"]) {
             document.body.removeChild(this.getBoxObject());
         }
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     }
 
@@ -332,16 +349,19 @@
 
         obj.style.left = Math.ceil((winWidth - objWidth)/2) + "px";
         obj.style.top = Math.ceil((winHeight - objHeight)/2) + "px";
+        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     }
 
     events["bind"] = function(eventType,element,callback) {
         this.event.registerListener(eventType,element,callback);
+        if(arguments[arguments.length - 1] instanceof Function && arguments.length > 3) arguments[arguments.length - 1](this);
         return this;
     }
 
     events["unbind"] = function(eventType,element,callback) {
         this.event.unregisterListener(eventType,element,callback);
+        if(arguments[arguments.length - 1] instanceof Function&& arguments.length > 3) arguments[arguments.length - 1](this);
         return this;
     }
 
