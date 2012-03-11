@@ -19,7 +19,7 @@
         obj.innerHTML = [
             '<table><tbody class="Mboxy">',
             '<tr><td class="Mboxy-top-left"></td><td class="Mboxy-top"></td><td class="Mboxy-top-right"></td></tr>',
-            '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><!--title--><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + '</span><div class="close">关闭</div></div><!--/title--><div class="Mboxy-content">' + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
+            '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><!--title--><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + '</span><div id="j-close" class="close">关闭</div></div><!--/title--><div class="Mboxy-content">' + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
             '<tr><td class="Mboxy-bottom-left"></td><td class="Mboxy-bottom"></td><td class="Mboxy-bottom-right"></td></tr>',
             '</tbody></table>'
         ].join("");
@@ -37,12 +37,145 @@
         box = mBoxy.Box.getBox(options.name);
         if(box) return box;
         box = new mBoxy.Box(options);
+        box.event = new mBoxy.Event(box);
+        if(options.hasTitle) {
+            box.bind("click","#j-close",function(event,obj) { obj.popdown()})
+        }
         return box;
+    }
+
+    mBoxy.Event = function() {
+        throw "abstract function";
+    }
+
+    mBoxy.Box = function() {
+        throw "abstract function";
     }
 
     window.mBoxy = window.mBoxy || mBoxy;
 
 })()
+
+;(function(mBoxy) {
+    var Event,
+        eventOP;
+
+    Event = mBoxy.Event = function(obj) {
+        // obj.events = {
+        //     "click":{
+        //       "#mBoxy":[function() {},function() {}]
+        //      }
+        // }
+        this.box = obj;
+        this.events = {};
+    }
+
+    eventOP = Event.prototype;
+
+    eventOP["_createEvent"] = function(obj,identity,handler) {
+        obj[identity] = new Array();
+        if(handler) obj[identity].push(handler);
+        return obj;
+    }
+
+    eventOP["registerType"] = function(name,identity,handler) {
+        if(this.events[name]) return this;
+        this.events[name] = {};
+
+        if(identity) {
+            this._createEvent(this.events[name],identity,handler);
+        }
+
+        this._addListener(name);
+    }
+
+    eventOP["registerListener"] = function(name,identity,handler) {
+        var eventList = this.events[name],hasIdentity = false,
+            i;
+
+        if(!eventList) {
+            this.registerType(name,identity,handler);
+            return this;
+        }
+
+        for(i in eventList) {
+            if(i == identity) {
+                eventList[i].push(handler);
+                hasIdentity = true;
+                break;
+            }
+        }
+
+        if(!hasIdentity) {
+            this._createEvent(eventList,identity,handler);
+        }
+    }
+
+    eventOP["unregisterListener"] = function(name,identity,handler) {
+        var eventList = this.events[name],i;
+
+        if(!eventsList) return this;
+
+        if(!eventsList[identity]) return this;
+
+        for(i in eventsList[identity]) {
+            if(eventsList[identity][i] == handler) eventsList[identity].split(i,1);
+        }
+        return this;
+    }
+
+    eventOP["_addListener"] = function(type) {
+        var obj = this.box.getBoxObject(),
+            callback = this._callback(type);
+
+        if(window.addEventListener) {
+            obj.addEventListener(type,callback,false); 
+        } else if (window.attachEvent) {
+            obj['__' + type + callback] = callback;
+            obj[type + callback] = function() {
+                obj['__' + type + callback](window.event);
+            }
+            obj.attachEvent("on" + type, obj[type + callback]);
+        }
+    }
+
+    eventOP["_callback"] = function(type) {
+        var eventList = this.events[type], type = type ,obj = this.box;
+
+        function compare(type,id,classes) {
+            var i, identity, ident, j;
+
+            for(i in eventList) {
+                identity = i.slice(0,1);
+                ident = i.slice(1,i.length);
+                switch(identity) {
+                    case "#": 
+                        if(id == ident) return i;
+                        break;
+                    case ".":
+                        for(j in classes) {
+                            if(classes[j] == ident) return i;
+                        }
+                        break;
+                }
+            }
+            return false;
+        }
+
+        return function(e) {
+            var eventTag = e.target || e.srcElement,
+                tagId = eventTag.id,
+                tagClass = eventTag.className.split(" "),
+                result,i;
+
+            result = compare(type,tagId,tagClass);
+            if(result) {
+                for(i in eventList[result]) eventList[result][i](e,obj);
+            }
+        }
+    }
+
+})(window.mBoxy)
 
  ;(function(mBoxy) {
     var Box,
@@ -276,6 +409,7 @@
         if(this["_insert"]) {
             document.body.removeChild(this.getBoxObject());
         }
+        return this;
     }
 
     events["position"] = function(x,y) {
@@ -296,6 +430,19 @@
 
         obj.style.left = Math.ceil((winWidth - objWidth)/2) + "px";
         obj.style.top = Math.ceil((winHeight - objHeight)/2) + "px";
+        return this;
+    }
+
+    events["bind"] = function(eventType,element,callback) {
+        this.event.registerListener(eventType,element,callback);
+        return this;
+    }
+
+    events["unbind"] = function(eventType,element,callback) {
+        this.event.unregisterListener(eventType,element,callback);
+        return this;
     }
 
 })(window.mBoxy)
+
+
