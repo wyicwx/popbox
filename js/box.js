@@ -97,6 +97,8 @@
 
         obj.className = "Mboxy-bg";
         obj.style.zIndex = 999;
+        obj.style.height = document.body.scrollHeight + "px";
+        obj.style.width = document.body.scrollWidth + "px";
         mBoxy.Box.getBackgroundObject = function() {
             return obj;
         }
@@ -183,7 +185,8 @@
     events["show"] = function(timeout) {
         var that = this;
 
-        this.trigger("insert","position","toggle");
+        this.trigger("insert","position");
+        this["toggle"](true);
         if(timeout > 0) {
             clearTimeout(that["_timeout"]);
             that["_timeout"] = setTimeout(function() {that.hide()},timeout);
@@ -348,7 +351,7 @@
             obj.style.display = display;
 
         obj.style.left = Math.ceil((winWidth - objWidth)/2) + "px";
-        obj.style.top = Math.ceil((winHeight - objHeight)/2) + "px";
+        obj.style.top = window.scrollY + Math.ceil((winHeight - objHeight)/2) + "px";
         if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     }
