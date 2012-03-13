@@ -155,8 +155,8 @@
             this.getBoxObject().style.filter="alpha(opacity=0)";
             if(this.hasBackground()) {
                 Box.getBackgroundObject().style.display = "none";
-                Box.getBackgroundObject().style.opacity="0";
-                Box.getBackgroundObject().style.filter="alpha(opacity=0)";
+                Box.getBackgroundObject().style.opacity = "0";
+                Box.getBackgroundObject().style.filter = "alpha(opacity=0)";
             }
             this["_opacity"] = false;
         } else {
@@ -165,8 +165,12 @@
             this.getBoxObject().style.filter="alpha(opacity=100)";
             if(this.hasBackground()) {
                 Box.getBackgroundObject().style.display = "block";
-                Box.getBackgroundObject().style.opacity="0.3";
-                Box.getBackgroundObject().style.filter="alpha(opacity=30)";
+                Box.getBackgroundObject().style.opacity = "0.3";
+                Box.getBackgroundObject().style.filter = "alpha(opacity=30)";
+            } else {
+                Box.getBackgroundObject().style.display = "none";
+                Box.getBackgroundObject().style.opacity = "0";
+                Box.getBackgroundObject().style.filter = "alpha(opacity=0)";
             }
             this["_opacity"] = true;
         }
