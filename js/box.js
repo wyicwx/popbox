@@ -21,7 +21,7 @@
         obj.innerHTML = [
             '<table><tbody class="Mboxy">',
             '<tr><td class="Mboxy-top-left"></td><td class="Mboxy-top"></td><td class="Mboxy-top-right"></td></tr>',
-            '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><!--title--><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + '</span><div id="j-close" class="close">关闭</div></div><!--/title--><div class="Mboxy-content">' + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
+            '<tr><td class="Mboxy-left"></td><td class="Mboxy-inner"><!--title--><div class="Mboxy-title"><span>' + this.regExp["boxTitle"] + this.regExp["boxTitle"] + '</span><div id="j-close" class="close">关闭</div></div><!--/title--><div class="Mboxy-content">' + this.regExp["boxContent"] + this.regExp["boxContent"] + '</div></td><td class="Mboxy-right"></td></tr>',
             '<tr><td class="Mboxy-bottom-left"></td><td class="Mboxy-bottom"></td><td class="Mboxy-bottom-right"></td></tr>',
             '</tbody></table>'
         ].join("");//使用join提升性能
@@ -42,7 +42,7 @@
         box = new mBoxy.Box(options);
         box.event = new mBoxy.Box.Event(box);
         if(options.hasTitle) {
-            box.bind("click","#j-close",function(event,obj) { obj.popdown()})
+            box.bind("click","#j-close",function(event,obj) { obj.hide()})
         }
         return box;
     }
@@ -153,11 +153,11 @@
             this.getBoxObject().style.display = "none";
             this.getBoxObject().style.opacity="0";
             this.getBoxObject().style.filter="alpha(opacity=0)";
-            if(this.hasBackground()) {
-                Box.getBackgroundObject().style.display = "none";
-                Box.getBackgroundObject().style.opacity = "0";
-                Box.getBackgroundObject().style.filter = "alpha(opacity=0)";
-            }
+            
+            Box.getBackgroundObject().style.display = "none";
+            Box.getBackgroundObject().style.opacity = "0";
+            Box.getBackgroundObject().style.filter = "alpha(opacity=0)";
+
             this["_opacity"] = false;
         } else {
             this.getBoxObject().style.display = "block";
@@ -205,35 +205,38 @@
     };
 
     events["title"] = function(title) {
-        var innerHTML = this.getBoxObject().innerHTML, titleRegExp = this["__title"] || mBoxy.regExp["boxTitle"];
+        var innerHTML = this.getBoxObject().innerHTML, titleRegExp;
 
         if(!this.hasTitle) return this;
-        innerHTML = innerHTML.replace(titleRegExp,title);
+        titleRegExp = new RegExp(mBoxy.regExp["boxTitle"] + ".*" + mBoxy.regExp["boxTitle"]);
+        innerHTML = innerHTML.match(/.*/g).join("");
+        innerHTML = innerHTML.replace(titleRegExp,mBoxy.regExp["boxTitle"]+title+mBoxy.regExp["boxTitle"]);
         this.getBoxObject().innerHTML = innerHTML;
-        this["__title"] = title;
         if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     };
 
     events["html"] = function(html) {
-        var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__html"] || mBoxy.regExp["boxContent"];
+        var innerHTML = this.getBoxObject().innerHTML, contentRegExp;
 
-        innerHTML = innerHTML.replace(contentRegExp,html);
+        contentRegExp = new RegExp(mBoxy.regExp["boxContent"] + ".*" + mBoxy.regExp["boxContent"]);
+        innerHTML = innerHTML.match(/.*/g).join("");
+        innerHTML = innerHTML.replace(contentRegExp,mBoxy.regExp["boxContent"]+html+mBoxy.regExp["boxContent"]);
         this.getBoxObject().innerHTML = innerHTML;
-        this["__html"] = html;
         if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     };
 
-    events["text"] = function(text) {
-        var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__text"] || mBoxy.regExp["boxContent"];
+    //TODO
+    // events["text"] = function(text) {
+    //     var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__text"] || mBoxy.regExp["boxContent"];
 
-        innerHTML = innerHTML.replace(contentRegExp,text);
-        this.getBoxObject().innerHTML = innerHTML;
-        this["__content"] = text;
-        if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
-        return this;
-    };
+    //     innerHTML = innerHTML.replace(contentRegExp,text);
+    //     this.getBoxObject().innerHTML = innerHTML;
+    //     this["__content"] = text;
+    //     if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
+    //     return this;
+    // };
 
     events["insert"] = function() {
         if(this["_insert"]) return this;
