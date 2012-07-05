@@ -227,7 +227,6 @@
         return this;
     };
 
-    //TODO
     // events["text"] = function(text) {
     //     var innerHTML = this.getBoxObject().innerHTML, contentRegExp = this["__text"] || mBoxy.regExp["boxContent"];
 
@@ -358,7 +357,7 @@
             obj.style.display = display;
 
         obj.style.left = Math.ceil((winWidth - objWidth)/2) + "px";
-        obj.style.top = window.scrollY + Math.ceil((winHeight - objHeight)/2) + "px";
+        obj.style.top = (window.scrollY||document.documentElement.scrollTop||document.body.scrollTop||0) + Math.ceil((winHeight - objHeight)/2) + "px";
         if(arguments[arguments.length - 1] instanceof Function) arguments[arguments.length - 1](this);
         return this;
     }
